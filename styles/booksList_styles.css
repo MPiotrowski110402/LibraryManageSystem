@@ -1,0 +1,109 @@
+/* Body */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Hero Section */
+  header {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 40px 0;
+  }
+  
+  /* Nagłówki */
+  h2 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Tabela książek */
+  .table-books {
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden; /* Zapobiega, aby zaokrąglenia były widoczne */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Lekki cień */
+    background-color: #ffffff; /* Jasne tło */
+  }
+  
+  .table-books th {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .table-books td {
+    padding: 15px;
+    text-align: center;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .table-books tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .table-books tr:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Subtelny cień przy hoverze */
+  }
+  a {
+    color:white;
+    text-decoration: none;
+  }
+  /* Przyciski rezerwacji */
+  .table-books td form input {
+    width: 120px;
+    padding: 10px;
+    border-radius: 25px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .table-books td form input:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+  }
+  
+  /* Stopka */
+  footer {
+    background-color: #f1f1f1;
+    padding: 20px;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    border-top: 1px solid #ddd;
+  }
+  
+  footer p {
+    margin: 0;
+    font-size: 14px;
+  }
+  
+  /* Ustawienia na mobilki */
+  @media (max-width: 768px) {
+    .table-books th, .table-books td {
+      font-size: 0.9rem; /* Mniejsza czcionka na mniejszych ekranach */
+    }
+  
+    .table-books td form input {
+      width: 100%;
+      font-size: 0.9rem; /* Dostosowanie przycisku */
+    }
+  }
+  
+  

@@ -1,0 +1,30 @@
+body {
+    background-color: #f8f9fa;
+}
+.table-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.rating {
+  direction: rtl;
+}
+.rating input {
+    display: none;
+}
+.rating label {
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+}
+.rating input:checked ~ label {
+    color: gold;
+}
+a {
+  color: white;
+  text-decoration: none;
+}
+textarea{
+  resize: none;
+}

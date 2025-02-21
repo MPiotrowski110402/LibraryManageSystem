@@ -1,0 +1,149 @@
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+
+.profile-card {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Zmieniono, aby elementy były blisko siebie */
+  height: auto; /* Zmieniono, aby nie ograniczać wysokości */
+}
+
+.profile-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px; /* Zmniejszenie odstępu */
+}
+
+.profile-info {
+  font-size: 1rem;
+  margin-bottom: 10px; /* Zmniejszenie odstępu */
+  color: #555;
+}
+
+.rentals-table {
+  font-size: 14px;
+  margin-top: 10px; /* Dodanie odstępu między nagłówkami a tabelą */
+}
+
+.rentals-table th, 
+.rentals-table td {
+  padding: 5px 10px;
+  text-align: left;
+}
+
+.rentals-table th {
+  background: #007bff;
+  color: white;
+}
+
+.rentals-table tbody tr:nth-child(odd) {
+  background: #f2f2f2;
+}
+
+.profile-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Ustawienie elementów w górnej części */
+}
+
+.card-body {
+  text-align: center;
+}
+
+/* Poprawa wyglądu przycisków */
+.btn-custom {
+  background-color: #007bff; /* Niebieski dla przycisków */
+  color: white;
+  border-radius: 5px;
+  font-size: 1rem;
+  padding: 10px 20px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-custom:hover {
+  background-color: #0056b3; /* Ciemniejszy niebieski przy hover */
+  transform: scale(1.05);
+}
+
+.btn-custom:focus {
+  outline: none;
+}
+
+.card-title {
+  color: #007bff; /* Kolor tekstu nagłówka kart */
+}
+
+.card-text {
+  color: #555; /* Kolor tekstu w kartach */
+}
+
+/* Poprawki rozmiaru i marginesów dla mniejszych ekranów */
+@media (max-width: 767px) {
+  .profile-header {
+      font-size: 1.25rem;
+  }
+  .profile-info {
+      font-size: 0.9rem;
+  }
+  .rentals-table th,
+  .rentals-table td {
+      padding: 3px 5px;
+  }
+}
+
+
+.notification-bar {
+  background-color: #FFF4C2; /* Lekko żółty kolor */
+  color: #5a5a5a; /* Szary tekst */
+  padding: 15px;
+  text-align: center;
+  position: fixed;
+  bottom: 0; /* Przenosi pasek na dół strony */
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Cień u góry */
+  font-family: Arial, sans-serif;
+}
+
+.notification-bar .notification-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.notification-bar p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.notification-bar .btn {
+  background-color: #FFBF00; /* Kolor przycisku - podobny do żółtego */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.notification-bar .btn:hover {
+  background-color: #FF9800; /* Przyciemniony odcień przycisku */
+}
+
+.notification-bar.hidden {
+  display: none;
+}
