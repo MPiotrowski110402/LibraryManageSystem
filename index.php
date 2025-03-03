@@ -7,7 +7,12 @@
     header('Location: pages/login.php');
     exit();
   }
-  $role = $_SESSION['role'];
+  if(isset($_SESSION['role'])){
+    $role = $_SESSION['role'];
+  }else{
+    header('Location: pages/logout.php');
+    exit();
+  }
 
 ?>
 <!DOCTYPE html>
