@@ -29,17 +29,26 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
     function reserveBook(){
         if(isset($_POST['copiesCount'])){
             global $conn;
-            $sql = "SELECT user_id FROM reservations WHERE user_id = '".$_SESSION['user_id']."'";
-            $result = mysqli_query($conn, $sql);
+            $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] :0;
+            $sql = "SELECT user_id FROM reservations WHERE user_id = ?";
+            $stmt = mysqli_prepare($conn,$sql);
+            mysqli_stmt_bind_param($stmt, "i", $user_id);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             if(mysqli_num_rows($result) > 0){
                 echo "Możesz zarezerwować tylko jedną książkę.";
             }else{
-                $bookId = $_POST['bookId'];
-                $query = "UPDATE books SET available_copies = available_copies - 1 WHERE id = '$bookId'";
-                if(mysqli_query($conn, $query)){
+                $bookId = isset($_POST['bookId'])?(int)$_POST['bookId'] :0;
+                $query = "UPDATE books SET available_copies = available_copies - 1 WHERE id = ?";
+                $stmt = mysqli_prepare($conn,$query);
+                mysqli_stmt_bind_param($stmt, "i", $bookId);
+                
+                if(mysqli_stmt_execute($stmt)){
                     $sql = "INSERT INTO reservations (user_id, book_id, reservation_date, status) 
-                    VALUES ('".$_SESSION['user_id']."', '$bookId', CURRENT_DATE(), 'active')";  
-                    mysqli_query($conn, $sql);
+                    VALUES (?, ?, CURRENT_DATE(), 'active')";  
+                    $stmt = mysqli_prepare($conn,$sql);
+                    mysqli_stmt_bind_param($stmt, "ii", $user_id, $bookId);
+                    mysqli_stmt_execute($stmt);
                     header('Location:../pages/booksList.php');
                     exit();
                 }
@@ -58,10 +67,16 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
         $result = mysqli_query($conn, $query);
         while ($row = mysqli_fetch_assoc($result)) {
             $bookId = $row['book_id'];
-            $updateBookQuery = "UPDATE books SET available_copies = available_copies + 1 WHERE id = '$bookId'";
-            mysqli_query($conn, $updateBookQuery);
-            $deleteReservationQuery = "DELETE FROM reservations WHERE id = '".$row['id']."'";
-            mysqli_query($conn, $deleteReservationQuery);
+            $reservationId = $row['id'];
+            $updateBookQuery = "UPDATE books SET available_copies = available_copies + 1 WHERE id = ?";
+            $stmt = mysqli_prepare($conn, $updateBookQuery);
+            mysqli_stmt_bind_param($stmt, "i", $bookId);
+            mysqli_stmt_execute($stmt);
+            $deleteReservationQuery = "DELETE FROM reservations WHERE id = ?";
+            $stmt = mysqli_prepare($conn, $deleteReservationQuery);
+            mysqli_stmt_bind_param($stmt, "i", $reservationId);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
         }
     }
 

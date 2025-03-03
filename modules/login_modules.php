@@ -1,7 +1,7 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/connect_db.php';
 include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/session.php';
-
+// Zamierzenie nie zabezpieczone. 
 if(isset($_POST['login_btn'])){
     global $conn;
     $email = $_POST['email'];

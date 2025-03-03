@@ -7,6 +7,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
     }
     function booksList() {
         global $conn;
+        $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
         $query = "SELECT 
                     borrowings.id AS borrowing_id, 
                     borrowings.borrow_date, 
@@ -17,9 +18,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
                     books.genre AS book_genre
                 FROM borrowings
                 JOIN books ON borrowings.book_id = books.id
-                WHERE borrowings.user_id = '".$_SESSION['user_id']."' AND borrowings.returned = 1
+                WHERE borrowings.user_id = ? AND borrowings.returned = 1
                 ORDER BY borrowings.borrow_date DESC;";
-        $result = mysqli_query($conn, $query);
+        $stmt = mysqli_prepare($conn,$query);
+        mysqli_stmt_bind_param($stmt, "i", $user_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         
         while ($row = mysqli_fetch_assoc($result)) {
             $daysLate = due_date($row['return_date'], $row['due_date']);

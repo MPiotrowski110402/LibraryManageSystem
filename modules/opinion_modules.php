@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function booksList() {
     global $conn;
+    $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0 ;
     $query = "SELECT 
         borrowings.id AS borrowing_id, 
         borrowings.borrow_date, 
@@ -19,12 +20,15 @@ function booksList() {
         books.genre AS book_genre
     FROM borrowings
     JOIN books ON borrowings.book_id = books.id
-    LEFT JOIN reviews ON borrowings.book_id = reviews.book_id AND reviews.user_id = '".$_SESSION['user_id']."'
-    WHERE borrowings.user_id = '".$_SESSION['user_id']."' 
+    LEFT JOIN reviews ON borrowings.book_id = reviews.book_id AND reviews.user_id = ?
+    WHERE borrowings.user_id = ? 
     AND borrowings.returned = 1
     AND reviews.book_id IS NULL  -- Wybieramy tylko książki, które nie mają recenzji
     ORDER BY borrowings.borrow_date DESC;";
-    $result = mysqli_query($conn, $query);
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "ii", $user_id, $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = $stmt->get_result();
     
     while ($row = mysqli_fetch_assoc($result)) {
         $daysLate = due_date($row['return_date'], $row['due_date']);
@@ -86,15 +90,20 @@ function review(){
                 echo "Ocena musi być liczbą między 1 a 5.";
                 return;
             }
-            $sql = "SELECT * FROM reviews WHERE user_id = '$user_id' AND book_id = '$book_id'";
-            $result = mysqli_query($conn, $sql);
+            $sql = "SELECT * FROM reviews WHERE user_id = ? AND book_id = ?";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "ii", $user_id, $book_id);
+            mysqli_stmt_execute($stmt);
+            $result = $stmt->get_result();
 
             if(mysqli_num_rows($result) > 0){
                 echo "Już posiadasz recenzję dla tej książki.";
             } else {
                 $query = "INSERT INTO reviews (user_id, book_id, rating, review_text, review_date) 
-                      VALUES ('$user_id', '$book_id', '$rating', '$review', CURRENT_DATE())";   
-                $result = mysqli_query($conn, $query);
+                      VALUES (?, ?, ?, ?, CURRENT_DATE())";   
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "iiss", $user_id, $book_id, $rating, $review);
+                $result = mysqli_stmt_execute($stmt);
                 if($result){
                     echo "Recenzja została dodana.";
                 } else {

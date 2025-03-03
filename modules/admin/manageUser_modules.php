@@ -5,8 +5,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
 
     function userData(){
         global $conn;
-        $query = "SELECT * FROM users WHERE cid = '".$_SESSION['cid']."'";
-        $result = mysqli_query($conn, $query);
+        $cid = htmlspecialchars(trim($_SESSION['cid']));
+        $query = "SELECT * FROM users WHERE cid = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $cid);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         if($row = mysqli_fetch_assoc($result)){
         if($row['role_id'] == '2'){
             $role = 'user';
@@ -51,9 +55,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
             DATEDIFF(CURRENT_DATE(), IFNULL(b.due_date, CURRENT_DATE())) AS days_late
         FROM borrowings b
         JOIN books bk ON b.book_id = bk.id
-        WHERE b.user_id = (SELECT id FROM users WHERE cid = '$cid')
+        WHERE b.user_id = (SELECT id FROM users WHERE cid = ?)
         ORDER BY b.id ASC";
-        $result = mysqli_query($conn, $query);
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $cid);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         if(mysqli_num_rows($result) > 0){
             while($row = mysqli_fetch_assoc($result)){
                 if($row['returned'] == 0){
@@ -103,10 +110,12 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
             DATEDIFF(IFNULL(b.return_date, CURRENT_DATE()), b.due_date) AS days_late
         FROM borrowings b
         JOIN books bk ON b.book_id = bk.id
-        WHERE b.user_id = (SELECT id FROM users WHERE cid = '$cid')
+        WHERE b.user_id = (SELECT id FROM users WHERE cid = ?)
         ORDER BY b.id ASC";
-
-        $result = mysqli_query($conn, $query);
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "s", $cid);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
         if(mysqli_num_rows($result) > 0){
             while($row = mysqli_fetch_assoc($result)){
                 if($row['returned'] == 1){
@@ -134,17 +143,22 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
         }
     }
     if(isset($_POST['przedluz'])){
-        $book_id = $_POST['book_id'];
-        $query = "UPDATE borrowings SET due_date = DATE_ADD(due_date, INTERVAL 7 DAY) WHERE book_id = '$book_id'";
-        mysqli_query($conn, $query);
+        $book_id = isset($_POST['book_id']) ? (int)$_POST['book_id'] :0;
+        $query = "UPDATE borrowings SET due_date = DATE_ADD(due_date, INTERVAL 7 DAY) WHERE book_id = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $book_id);
+        mysqli_stmt_execute($stmt);
         header('Location: /SystemZarządzaniaBiblioteką/pages/admin/manageUser.php?cid=' . urlencode($_SESSION['cid']));
         exit();
     }
     if(isset($_POST['oddaj'])){
-        $cid = $_SESSION['cid'];
-        $book_id = $_POST['book_id'];
-        $user_query = "SELECT id FROM users WHERE cid = '$cid' LIMIT 1";
-        $user_result = mysqli_query($conn, $user_query);
+        $cid = htmlspecialchars(trim($_SESSION['cid']));
+        $book_id = isset($_POST['book_id']) ? (int)$_POST['book_id']:0;
+        $user_query = "SELECT id FROM users WHERE cid = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $user_query);
+        mysqli_stmt_bind_param($stmt, "s", $cid);
+        mysqli_stmt_execute($stmt);
+        $user_result = mysqli_stmt_get_result($stmt);
         if ($user_result && mysqli_num_rows($user_result) > 0) {
             $user_row = mysqli_fetch_assoc($user_result);
             $user_id = $user_row['id'];
@@ -153,13 +167,17 @@ include $_SERVER['DOCUMENT_ROOT'] . '/SystemZarządzaniaBiblioteką/connect/sess
                     WHERE id = (
                         SELECT id FROM (
                             SELECT id FROM borrowings
-                            WHERE user_id = '$user_id' AND book_id = '$book_id' AND returned = 0
+                            WHERE user_id = ? AND book_id = ? AND returned = 0
                             ORDER BY borrow_date ASC LIMIT 1
                         ) AS subquery
                     )";
-            if(mysqli_query($conn, $query)){
-                $update_book_query = "UPDATE books SET available_copies = available_copies + 1 WHERE id = '$book_id'";
-                mysqli_query($conn, $update_book_query);
+            $stmt = mysqli_prepare($conn, $query);
+            mysqli_stmt_bind_param($stmt, "ii", $user_id, $book_id);
+            if(mysqli_stmt_execute($stmt)){
+                $update_book_query = "UPDATE books SET available_copies = available_copies + 1 WHERE id = ?";
+                $stmt = mysqli_prepare($conn, $update_book_query);
+                mysqli_stmt_bind_param($stmt, "i", $book_id);
+                mysqli_stmt_execute($stmt);
             }
         }
         header('Location: /SystemZarządzaniaBiblioteką/pages/admin/manageUser.php?cid=' . urlencode($_SESSION['cid']));

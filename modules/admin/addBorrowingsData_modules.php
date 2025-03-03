@@ -19,20 +19,59 @@ function bookList(){
     }
     if(isset($_POST['wypozycz'])){
         $cid = $_POST['cid'];
-        $bookId = $_POST['book_id'];
+        $bookId = isset($_POST['book_id'])? (int)$_POST['book_id']: 0;
         $due_time = $_POST['return_date'];
-        $sql = "SELECT id FROM users WHERE cid = '$cid'";
-        $result = mysqli_query($conn, $sql);
+        if(empty($due_time)){
+            echo "Proszę podać poprawną datę zwracania";
+            return;
+        }
+        $sql = "SELECT id FROM users WHERE cid = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        if(!$stmt) {
+            echo "Błąd przy przygotowywaniu zapytania". mysqli_error($conn);
+            exit();
+        }
+
+        mysqli_stmt_bind_param($stmt, 's', $cid);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
         if(mysqli_num_rows($result) > 0){
             $row = mysqli_fetch_assoc($result);
             $userId = $row['id'];
+
+
             $sql = "INSERT INTO borrowings (user_id, book_id, borrow_date, due_date, returned)  
-            VALUES ('$userId', '$bookId', CURRENT_DATE(), '$due_time', 0)";
-            mysqli_query($conn, $sql);
-            $query = "UPDATE books SET available_copies = available_copies - 1 WHERE id = '$bookId'";
-            mysqli_query($conn, $query);
-            header('Location:../../index.php');
-            exit();
+            VALUES (?, ?, CURRENT_DATE(), ?, 0)";
+            $stmt = mysqli_prepare($conn, $sql);
+            if(!$stmt) {
+                echo "Błąd przy przygotowywaniu zapytania". mysqli_error($conn);
+                exit();
+            }
+            mysqli_stmt_bind_param($stmt, 'iis', $userId, $bookId, $due_time);
+            $execute = mysqli_stmt_execute($stmt);
+            if($execute){
+                $query = "UPDATE books SET available_copies = available_copies - 1 WHERE id = ?";
+                $stmt = mysqli_prepare($conn,$query);
+                if(!$stmt) {
+                    echo "Błąd przy przygotowywaniu zapytania". mysqli_error($conn);
+                    exit();
+                }else{
+                mysqli_stmt_bind_param($stmt, 'i', $bookId);
+                mysqli_stmt_execute($stmt);
+                }
+
+                $deleteReservationSql = "DELETE FROM reservations WHERE book_id = ? AND user_id = ?";
+                $stmt = mysqli_prepare($conn, $deleteReservationSql);
+                mysqli_stmt_bind_param($stmt, 'ii', $bookId, $userId);
+                mysqli_stmt_execute($stmt);
+                header('Location:../../index.php');
+                exit();
+            }else{
+                echo "Wystąpił błąd przy wypożyczeniu książki";
+            }
+        }else{
+            echo "Nie znaleziono użytkownika o podanym id";
         }
     }
 
